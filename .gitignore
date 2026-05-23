@@ -1,0 +1,7 @@
+.ansible-lint
+.yamllint
+.djlintrc
+.gitleaks.toml
+.pre-commit-config.yaml
+logs/
+*.log

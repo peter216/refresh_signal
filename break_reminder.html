@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Break Time</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #00c896;
+    --green-dark: #00a07a;
+    --green-bg: #001a12;
+    --green-mid: #002d1f;
+    --yellow: #f5c842;
+    --yellow-dark: #c9a020;
+    --yellow-bg: #1a1400;
+    --yellow-mid: #2d2200;
+    --mono: 'DM Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--mono);
+    background: #0a0a0a;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.8rem 3rem;
+    border-bottom: 1px solid #222;
+    background: #0a0a0a;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: var(--display);
+    font-size: 1.05rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #555;
+  }
+
+  .clock {
+    font-size: 0.8rem;
+    color: #444;
+    letter-spacing: 0.12em;
+  }
+
+  .nav-pills {
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  .nav-pill {
+    padding: 0.3rem 0.9rem;
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    border: 1px solid;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .nav-pill.g {
+    color: var(--green);
+    border-color: var(--green-dark);
+    background: transparent;
+  }
+  .nav-pill.g:hover { background: var(--green); color: var(--green-bg); }
+
+  .nav-pill.y {
+    color: var(--yellow);
+    border-color: var(--yellow-dark);
+    background: transparent;
+  }
+  .nav-pill.y:hover { background: var(--yellow); color: var(--yellow-bg); }
+
+  /* ── PANELS ── */
+  .panel {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* left: big signal */
+  .signal-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 3rem;
+    position: relative;
+  }
+
+  /* right: tasks */
+  .tasks-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem 3.5rem;
+    border-left: 1px solid;
+  }
+
+  /* ── GREEN ── */
+  #green {
+    background: var(--green-bg);
+  }
+
+  #green .signal-col {
+    background: radial-gradient(ellipse at 40% 50%, var(--green-mid) 0%, var(--green-bg) 70%);
+  }
+
+  #green .tasks-col {
+    border-color: var(--green-dark);
+    background: var(--green-bg);
+  }
+
+  .signal-orb {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  #green .signal-orb {
+    background: radial-gradient(circle at 35% 35%, #00ffb8, var(--green-dark));
+    box-shadow: 0 0 60px rgba(0,200,150,0.4), 0 0 120px rgba(0,200,150,0.15);
+    animation: pulse-green 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-green {
+    0%, 100% { box-shadow: 0 0 60px rgba(0,200,150,0.4), 0 0 120px rgba(0,200,150,0.15); }
+    50%       { box-shadow: 0 0 80px rgba(0,200,150,0.6), 0 0 160px rgba(0,200,150,0.25); }
+  }
+
+  #yellow .signal-orb {
+    background: radial-gradient(circle at 35% 35%, #ffe066, var(--yellow-dark));
+    box-shadow: 0 0 60px rgba(245,200,66,0.4), 0 0 120px rgba(245,200,66,0.15);
+    animation: pulse-yellow 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse-yellow {
+    0%, 100% { box-shadow: 0 0 60px rgba(245,200,66,0.4), 0 0 120px rgba(245,200,66,0.15); }
+    50%       { box-shadow: 0 0 80px rgba(245,200,66,0.6), 0 0 160px rgba(245,200,66,0.25); }
+  }
+
+  .signal-label {
+    font-family: var(--display);
+    font-size: 4.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 0.6rem;
+  }
+
+  #green .signal-label { color: var(--green); }
+  #yellow .signal-label { color: var(--yellow); }
+
+  .signal-sub {
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #555;
+    text-align: center;
+  }
+
+  .timer-ring {
+    position: absolute;
+    width: 230px;
+    height: 230px;
+    border-radius: 50%;
+    border: 1px dashed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.2;
+    animation: spin 20s linear infinite;
+  }
+
+  #green .timer-ring { border-color: var(--green); }
+  #yellow .timer-ring { border-color: var(--yellow); }
+
+  @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+  /* ── TASKS ── */
+  .section-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  #green .section-label { color: var(--green-dark); }
+  #yellow .section-label { color: var(--yellow-dark); }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+  }
+
+  #green .section-label::after { background: var(--green-dark); opacity: 0.3; }
+  #yellow .section-label::after { background: var(--yellow-dark); opacity: 0.3; }
+
+  .task-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .task-item {
+    display: grid;
+    grid-template-columns: 2.2rem 1fr;
+    gap: 0.8rem;
+    align-items: start;
+    opacity: 0;
+    transform: translateX(20px);
+    animation: slide-in 0.5s forwards;
+  }
+
+  .task-item:nth-child(1) { animation-delay: 0.1s; }
+  .task-item:nth-child(2) { animation-delay: 0.2s; }
+  .task-item:nth-child(3) { animation-delay: 0.3s; }
+  .task-item:nth-child(4) { animation-delay: 0.4s; }
+
+  @keyframes slide-in {
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .task-num {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    padding-top: 0.15rem;
+    text-align: right;
+  }
+
+  #green .task-num { color: var(--green-dark); }
+  #yellow .task-num { color: var(--yellow-dark); }
+
+  .task-text {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: #ccc;
+  }
+
+  .task-detail {
+    font-size: 0.75rem;
+    color: #555;
+    margin-top: 0.25rem;
+    line-height: 1.5;
+  }
+
+  /* ── YELLOW ── */
+  #yellow {
+    background: var(--yellow-bg);
+  }
+
+  #yellow .signal-col {
+    background: radial-gradient(ellipse at 40% 50%, var(--yellow-mid) 0%, var(--yellow-bg) 70%);
+  }
+
+  #yellow .tasks-col {
+    border-color: var(--yellow-dark);
+    background: var(--yellow-bg);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 1.2rem 3rem;
+    border-top: 1px solid #1a1a1a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0a0a0a;
+  }
+
+  .footer-note {
+    font-size: 0.68rem;
+    color: #333;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 800px) {
+    .panel { grid-template-columns: 1fr; min-height: auto; }
+    .signal-col { padding: 3rem 2rem; min-height: 40vh; }
+    .tasks-col { border-left: none; border-top: 1px solid; padding: 2.5rem 2rem; }
+    header { padding: 1.2rem 1.5rem; }
+    .logo { font-size: 0.85rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">Break Signal</span>
+  <nav class="nav-pills">
+    <a href="#green" class="nav-pill g">● Green</a>
+    <a href="#yellow" class="nav-pill y">● Yellow</a>
+  </nav>
+  <span class="clock" id="clock"></span>
+</header>
+
+<!-- ══════════════ GREEN ══════════════ -->
+<section class="panel" id="green">
+  <div class="signal-col">
+    <div class="signal-orb">
+      <div class="timer-ring"></div>
+    </div>
+    <div class="signal-label">Green</div>
+    <div class="signal-sub">Body Reset · Even Hours</div>
+  </div>
+
+  <div class="tasks-col">
+    <div class="section-label">Your checklist</div>
+    <ul class="task-list">
+      <li class="task-item">
+        <span class="task-num">01</span>
+        <div>
+          <div class="task-text">Stand up and move</div>
+          <div class="task-detail">Walk to another room, step outside if you can — even 2 minutes of light movement resets blood pressure and leg circulation.</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <span class="task-num">02</span>
+        <div>
+          <div class="task-text">Box breathing</div>
+          <div class="task-detail">Inhale 4 sec → hold 4 sec → exhale 4 sec → hold 4 sec. Repeat 4×. Activates the parasympathetic nervous system.</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <span class="task-num">03</span>
+        <div>
+          <div class="task-text">Stretch it out</div>
+          <div class="task-detail">Neck rolls, shoulder shrugs, seated spinal twist, wrist circles. Target whatever held tension from the last hour.</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <span class="task-num">04</span>
+        <div>
+          <div class="task-text">Drink water</div>
+          <div class="task-detail">A few ounces minimum. Refill if you're running low. Mild dehydration is a silent productivity killer.</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══════════════ YELLOW ══════════════ -->
+<section class="panel" id="yellow">
+  <div class="signal-col">
+    <div class="signal-orb">
+      <div class="timer-ring"></div>
+    </div>
+    <div class="signal-label">Yellow</div>
+    <div class="signal-sub">Mind Reset · Odd Hours</div>
+  </div>
+
+  <div class="tasks-col">
+    <div class="section-label">Your checklist</div>
+    <ul class="task-list">
+      <li class="task-item">
+        <span class="task-num">01</span>
+        <div>
+          <div class="task-text">Eyes off the screen</div>
+          <div class="task-detail">Close your eyes for 60 seconds or look at something 20+ feet away. Lets your ciliary muscles fully relax.</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <span class="task-num">02</span>
+        <div>
+          <div class="task-text">Brain dump</div>
+          <div class="task-detail">Grab paper or a scratch file and offload whatever's bouncing around in your head. Clears working memory and reduces cognitive load for the next block.</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <span class="task-num">03</span>
+        <div>
+          <div class="task-text">Deliberate non-thinking</div>
+          <div class="task-detail">Step away and let your mind wander for 3–5 minutes — no podcasts, no phone. Your default mode network does its best synthesis work here.</div>
+        </div>
+      </li>
+      <li class="task-item">
+        <span class="task-num">04</span>
+        <div>
+          <div class="task-text">Intention reset</div>
+          <div class="task-detail">What's the single most important thing for the next hour? Name it explicitly before you sit back down. Prevents drift back into reactive mode.</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <span class="footer-note">Blink(1) Break Signal · Hourly</span>
+  <span class="footer-note" id="next-break"></span>
+</footer>
+
+<script>
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function tick() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+    const next = new Date(now);
+    next.setHours(now.getHours() + 1, 0, 0, 0);
+    const diff = Math.round((next - now) / 1000);
+    const m = Math.floor(diff / 60);
+    const s = diff % 60;
+    document.getElementById('next-break').textContent =
+      `Next signal in ${m}m ${pad(s)}s`;
+  }
+
+  tick();
+  setInterval(tick, 1000);
+
+  // Auto-scroll to the relevant section based on current hour parity
+  window.addEventListener('load', () => {
+    const hour = new Date().getHours();
+    const target = hour % 2 === 0 ? '#green' : '#yellow';
+    document.querySelector(target).scrollIntoView({ behavior: 'smooth' });
+  });
+</script>
+</body>
+</html>
